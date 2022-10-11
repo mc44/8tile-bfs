@@ -9,6 +9,8 @@ let click_direction = [];
 let empty = "";
 const state = {}
 state.content = tiles;
+let curnode = "";
+let solution = [];
 
 const onclick_handler = ev => {
     //get clicked value
@@ -161,7 +163,7 @@ function solve(){
     visited = new Set();
     visited.add(state.content.toString());
     let snode = new node("none",state.content.toString(),"","")
-    let curnode = snode;
+    curnode = snode;
     let first = true;
     let counter = 0;
     queue.push(curnode);
@@ -175,7 +177,6 @@ function solve(){
             counter++;
         }
         if (checkwin(curnode.curstate)){
-            showModal();
             break;
         }
         console.log(visited.size,queue.length,clickable,curnode,counter);
@@ -197,29 +198,52 @@ function solve(){
     //check next
     }
     console.log("OUT")
-    let solution = [];
-    let moves = 1;
+    solution = [];
+    let moves = 0;
     while (curnode.parent){
         solution.unshift(curnode);
         curnode = curnode.parent;
-        moves++
     }
     console.log("Moves!",moves);
-    let html = "";
+    let html = "<h1>The Step by step solution</h1>";
     let new3x3 = "";
     let curdimension = [];
+    let bimage = {"U":"images/up.png","D":"images/down.png","L":"images/left.png","R":"images/right.png"};
     console.log(solution);
     for (let i=0; i<solution.length;i++){
         new3x3 = "";
         curdimension = getDimension_fromstring(solution[i].curstate.toString());
         for(let row = 0; row < curdimension.length;row++){
             for (let col = 0; col < curdimension[row].length;col++){
-                new3x3+="<li>"+curdimension[row][col].toString()+"</li>";
+                if (curdimension[row][col].toString()==solution[i].val.toString()){
+                    new3x3+="<li" + " style='background-image: url("+bimage[solution[i].move]+");background-size: cover;'" + ">"+curdimension[row][col].toString()+"</li>";
+                }else{
+                    new3x3+="<li>"+curdimension[row][col].toString()+"</li>";
+                }
+                
             }
         }
-        html+="<br><div id='container'><ul>" + new3x3 + "</ul></div>"
+        html+="<br><div id='smol_container'><ul>" + new3x3 + "</ul> <h2>Move #: "+ moves.toString() +"</h2></div>"
+        moves++
     }
     document.getElementById('solution_add').innerHTML = html;
+}
+
+function animate_sol(){
+    if(solution.length===0){
+        return;
+    }
+    console.log(solution);
+    let sol_queue = solution;
+    try{
+        setInterval(anim_next(sol_queue.shift()),1000);
+    }catch (err){
+        console.log(err);
+    }
+}
+
+function anim_next(node){
+    fillGrid(ul,node.curstate.split(','));
 }
 
 
