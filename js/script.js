@@ -1,5 +1,5 @@
 // select the list items
-let ul = document.querySelectorAll('li');;
+let ul = document.querySelectorAll('li');
 const tiles= ["1", "2", "3", "4", "5", "6", "7", "8", ""]
 let clicked = "";
 let clickedval = "";
@@ -33,9 +33,9 @@ const onclick_handler = ev => {
     // get new dimention from the state after dropping
     state.dimension = getDimension(state);
 
-    removeallclick(document.querySelectorAll('li'));
-    setDroppable(document.querySelectorAll('li'));
-    setDraggable(document.querySelectorAll('li'));
+    removeallclick(ul);
+    setDroppable(ul);
+    setDraggable(ul);
     //console.log(clickable,'test',clickedval,clicked);
     if(checkwin(state.content)){
         showModal();
@@ -127,12 +127,12 @@ function setUp() {
     state.dimension = getDimension(state); //transform into 3x3 array
 
  // set up the droppable and dragabble contents
-    setDroppable(ul) ;
+    setDroppable(ul);
     setDraggable(ul);
     console.log("The state dimension", state.dimension)
     visited.add(state.content.toString());
     //shuffle
-    for(let i = 0; i < getRandomInt(30, 100); i++) {
+    for(let i = 0; i < getRandomInt(50, 100); i++) {
         let randomval = getRandomInt(0, clickable.length-1);
         let getid = clickable[randomval];
         let check = forward_state(state.content,click_vals[randomval]);
@@ -229,21 +229,26 @@ function solve(){
     document.getElementById('solution_add').innerHTML = html;
 }
 
+let sol_queue = [];
 function animate_sol(){
-    if(solution.length===0){
+    if(solution.length==0){
         return;
     }
-    console.log(solution);
-    let sol_queue = solution;
-    try{
-        setInterval(anim_next(sol_queue.shift()),1000);
-    }catch (err){
-        console.log(err);
-    }
+    sol_queue = solution.slice();
+    anim_recurse();
 }
 
-function anim_next(node){
+function anim_recurse(){
+    node = sol_queue.shift()
     fillGrid(ul,node.curstate.split(','));
+    state.content = node.curstate.split(',');
+    state.dimension = getDimension_fromstring(node.curstate);
+    setDroppable(ul);
+    setDraggable(ul);
+    if(sol_queue.length===0){
+        return;
+    }
+    setTimeout(anim_recurse,1000);
 }
 
 
@@ -307,7 +312,7 @@ const setDroppable = (items) => {
 
 const setDraggable = (items) => {
     const [row, col] = getEmptyCell();
-
+    console.log(state.dimension,row,col);
     let left, right, top, bottom = null;
     if(state.dimension[row][col-1]) left = state.dimension[row][col-1];
     if(state.dimension[row][col+1]) right = state.dimension[row][col+1];
