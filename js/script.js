@@ -38,7 +38,7 @@ const onclick_handler = ev => {
     setDraggable(ul);
     //console.log(clickable,'test',clickedval,clicked);
     if(checkwin(state.content)){
-        showModal();
+        showModal("Congrats!");
     }
     //ev.dataTransfer.setData("text/plain", ev.target.id)
     //ev.dataTransfer.dropEffect = "move";
@@ -53,8 +53,8 @@ const checkwin = (curstate) => {
     return false;
 }
 
-const showModal = () => {
-    document.getElementById('message').innerText = "You Won!";
+const showModal = (text) => {
+    document.getElementById('message').innerText = text;
     document.getElementById('modal').classList.remove("hide");
 
 }
@@ -146,6 +146,29 @@ function setUp() {
     
     //console.log(visited);
 }
+function shuffle(){
+    state.content = getState(ul); // gets placements of 1x9 array
+    state.dimension = getDimension(state); //transform into 3x3 array
+
+ // set up the droppable and dragabble contents
+    setDroppable(ul);
+    setDraggable(ul);
+    visited = new Set();
+    console.log("The state dimension", state.dimension)
+    visited.add(state.content.toString());
+    //shuffle
+    for(let i = 0; i < getRandomInt(50, 100); i++) {
+        let randomval = getRandomInt(0, clickable.length-1);
+        let getid = clickable[randomval];
+        let check = forward_state(state.content,click_vals[randomval]);
+        if (!visited.has(check)){
+            document.getElementById(getid).click();
+            visited.add(check);
+        }else{
+            i--;
+        }
+    }
+}
 
 let queue = [];
 
@@ -160,7 +183,11 @@ class node {
 }
 
 function solve(){
+    if(checkwin(state.content.toString())){
+        showModal("Already solved");
+    }
     visited = new Set();
+    queue = [];
     visited.add(state.content.toString());
     let snode = new node("none",state.content.toString(),"","")
     curnode = snode;
@@ -410,7 +437,7 @@ const theory_click =(curstate,clicked,clickedval) =>{
     //setDraggable(document.querySelectorAll('li'));
     setclickable(state.content);
     if(checkwin(state.content)){
-        showModal();
+        showModal("Congrats!");
     }
 }
 
