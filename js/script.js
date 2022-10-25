@@ -173,12 +173,14 @@ function shuffle(){
 let queue = [];
 
 class node {
-    constructor(parent,curstate,id,val,move){
+    constructor(parent,curstate,id,val,move,depth=0,fscore=0){
         this.parent = parent;
         this.curstate = curstate;
         this.id = id;
         this.val = val;
         this.move = move;
+        this.depth = depth; //how deep into the tree
+        this.fscore = fscore; //tiles different from the goal
     }
 }
 
@@ -225,6 +227,83 @@ function solve(){
     //check next
     }
     console.log("OUT")
+    showsoln();
+}
+
+function Astar_solve(){
+    if(checkwin(state.content.toString())){
+        showModal("Already solved");
+    }
+    visited = new Set();
+    queue = [];
+    visited.add(state.content.toString());
+    let snode = new node("none",state.content.toString(),"","")
+    curnode = snode;
+    let first = true;
+    let counter = 0;
+    queue.push(curnode);
+    while(queue.length>0){
+        curnode = queue.shift();
+        if(!first){
+            //document.getElementById(curnode.id).click(); //replace
+            //theory_click(curnode.curstate.split(','),curnode.id,curnode.val);
+            state.dimension = getDimension_fromstring(curnode.curstate);
+            setclickable(curnode.curstate.split(','));
+            counter++;
+        }
+        if (checkwin(curnode.curstate)){
+            break;
+        }
+        console.log(visited.size,queue.length,clickable,curnode,counter);
+        first = false;
+    //expand and sort queue
+    //check moves -> clickable = li1, li2 //click_vals = 1, 2
+        for(let i = 0; i < clickable.length;i++){
+    //check move validty
+            let curstate = curnode.curstate;
+            //console.log(curstate,curstate.split(','),);
+            let newstate = forward_state(curstate.split(','),click_vals[i]); //check lookahead to check if visited
+            if (!visited.has(newstate)){
+                    visited.add(newstate);
+                    hscore = getHscore(newstate.split(','))
+                    newdepth = curnode.depth+1;
+                //create node
+                    newnode = new node(curnode, newstate, clickable[i], click_vals[i], click_direction[i],newdepth,newdepth+hscore);
+                //add to queue
+                    queue.push(newnode);
+            }
+        }
+        //sort queue
+        queue.sort(compare)
+        console.log(queue);
+    //check next
+    }
+    console.log("OUT")
+    showsoln();
+}
+
+function compare( a, b ) {
+    if ( a.fscore < b.fscore ){
+      return -1;
+    }
+    if ( a.fscore > b.fscore ){
+      return 1;
+    }
+    return 0;
+  }
+
+const getHscore = (cstate) => {
+    goalstate = [1,2,3,4,5,6,7,8];
+    counter = 0;
+    for(let i = 0; i < goalstate.length; i++) {
+        if (goalstate[i]==goalstate[i]){
+            counter++;
+        }
+    }
+    return counter;
+}
+
+function showsoln(){
     solution = [];
     let moves = 0;
     while (curnode.parent){
