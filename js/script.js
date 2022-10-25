@@ -254,7 +254,7 @@ function Astar_solve(){
         if (checkwin(curnode.curstate)){
             break;
         }
-        console.log(visited.size,queue.length,clickable,curnode,counter);
+        //console.log(visited.size,queue.length,clickable,curnode,counter);
         first = false;
     //expand and sort queue
     //check moves -> clickable = li1, li2 //click_vals = 1, 2
@@ -266,6 +266,9 @@ function Astar_solve(){
             if (!visited.has(newstate)){
                     visited.add(newstate);
                     hscore = getHscore(newstate.split(','))
+                    if (hscore<4){
+                        console.log(newstate);
+                    }
                     newdepth = curnode.depth+1;
                 //create node
                     newnode = new node(curnode, newstate, clickable[i], click_vals[i], click_direction[i],newdepth,newdepth+hscore);
@@ -275,7 +278,7 @@ function Astar_solve(){
         }
         //sort queue
         queue.sort(compare)
-        console.log(queue);
+        //console.log(queue);
     //check next
     }
     console.log("OUT")
@@ -293,10 +296,10 @@ function compare( a, b ) {
   }
 
 const getHscore = (cstate) => {
-    goalstate = [1,2,3,4,5,6,7,8];
+    goalstate = ["1","2","3","4","5","6","7","8",""];
     counter = 0;
     for(let i = 0; i < goalstate.length; i++) {
-        if (goalstate[i]==goalstate[i]){
+        if (goalstate[i].toString()!=cstate[i].toString()){
             counter++;
         }
     }
